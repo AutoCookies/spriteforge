@@ -1,0 +1,27 @@
+# Binaries
+/pixelc
+pixelc-test-bin
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Build output
+bin/
+dist/
+out/
+tmp/
+*.tmp
+
+# Go
+coverage.out
+*.test
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+
+build/
+
+*.log

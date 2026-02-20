@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Test
+        run: go test ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Verify boundaries
+        shell: bash
+        run: ./scripts/verify.sh
+
+      - name: Ensure no binary files committed
+        run: go run ./scripts/no_binary.go
+
+      - name: Build CLI
+        run: go build -o pixelc ./cmd/pixelc
+
+      - name: Smoke test (windows)
+        if: matrix.os == 'windows-latest'
+        run: PIXELC_BIN=./pixelc.exe go test -tags smoketool ./scripts -run TestSmokeHarness -v
+
+      - name: Smoke test (unix)
+        if: matrix.os != 'windows-latest'
+        run: PIXELC_BIN=./pixelc go test -tags smoketool ./scripts -run TestSmokeHarness -v
+
+      - name: Benchmarks + gate
+        run: |
+          go test ./... -bench=. -benchmem -run=^$ > bench.txt
+          go run -tags benchgate ./scripts/bench_gate.go bench.txt

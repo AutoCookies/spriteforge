@@ -1,19 +1,22 @@
 # Pixel Asset Compiler (pixelc)
 
-Pixel Asset Compiler (PAC) is a deterministic sprite-atlas compilation toolchain written in Go. This repository currently provides a production-ready Phase 0 foundation with strict contracts, stable schemas, boundary guardrails, CI checks, and compile-time-safe stubs for future implementation phases.
+Pixel Asset Compiler (PAC) is a deterministic sprite-atlas compilation toolchain written in Go.
 
 ## Input support status
 
-- PNG spritesheet input: parser/pipeline implementation coming in later phases.
-- Folder-of-PNG-frames input: parser/pipeline implementation coming in later phases.
+- PNG spritesheet input: supported.
+- Folder-of-PNG-frames input: supported.
+- Recursive batch folder compilation: supported with `--batch`.
 
 ## CLI usage
 
 ```bash
 pixelc compile <input> --out <dir> --preset unity --padding 2 --connectivity 4 --pivot bottom-center --power2
+pixelc compile <input_dir> --batch --out <dir> --ignore "**/temp/**" --fps 12 --report
+pixelc compile <input> --out <dir> --config config.json --dry-run
 ```
 
-In Phase 3, `compile` performs slicer/trim/pivot, deterministic single-atlas packing, Unity preset JSON export, and CLI output writing (`atlas.png`, `atlas.json`).
+Phase 4 adds batch compile, animation grouping (filename-based), config loading, dry-run mode, ignore patterns, and optional report output.
 
 ## Development commands
 
@@ -22,8 +25,9 @@ go test ./...
 go vet ./...
 go build ./cmd/pixelc
 ./scripts/verify.sh
+go run ./scripts/no_binary.go
 ```
 
 ## Fixtures
 
-Fixture directories are scaffolded in-repo for Phase 0, while binary PNG fixture assets are intentionally omitted from source control. Later phases can generate deterministic fixture images during tests or reintroduce approved assets.
+Fixture directories are scaffolded in-repo. Binary fixture assets are intentionally not tracked.

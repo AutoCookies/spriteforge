@@ -3,7 +3,7 @@ package model
 import "testing"
 
 func TestConfigValidate(t *testing.T) {
-	valid := Config{Connectivity: 4, Padding: 0, PivotMode: "center", Preset: "unity"}
+	valid := Config{Connectivity: 4, Padding: 0, PivotMode: "center", Preset: "unity", FPS: 12}
 	if err := valid.Validate(); err != nil {
 		t.Fatalf("expected valid config, got %v", err)
 	}
@@ -12,7 +12,8 @@ func TestConfigValidate(t *testing.T) {
 		{Connectivity: 5, Padding: 0, PivotMode: "center", Preset: "unity"},
 		{Connectivity: 4, Padding: -1, PivotMode: "center", Preset: "unity"},
 		{Connectivity: 4, Padding: 0, PivotMode: "top", Preset: "unity"},
-		{Connectivity: 4, Padding: 0, PivotMode: "center", Preset: "json"},
+		{Connectivity: 4, Padding: 0, PivotMode: "center", Preset: "invalid"},
+		{Connectivity: 4, Padding: 0, PivotMode: "center", Preset: "unity", FPS: -1},
 	}
 
 	for _, cfg := range cases {
@@ -39,6 +40,19 @@ func TestAtlasValidate(t *testing.T) {
 	for _, atlas := range cases {
 		if err := atlas.Validate(); err == nil {
 			t.Fatalf("expected atlas validation failure for %+v", atlas)
+		}
+	}
+}
+
+func TestAnimationValidate(t *testing.T) {
+	a := Animation{State: "idle", Frames: []string{"f1", "f2"}, FPS: 12}
+	if err := a.Validate(); err != nil {
+		t.Fatalf("expected valid animation, got %v", err)
+	}
+	bad := []Animation{{State: "", Frames: []string{"f"}, FPS: 12}, {State: "idle", Frames: []string{""}, FPS: 12}, {State: "idle", Frames: []string{"f"}, FPS: 0}}
+	for _, x := range bad {
+		if err := x.Validate(); err == nil {
+			t.Fatalf("expected invalid animation: %+v", x)
 		}
 	}
 }

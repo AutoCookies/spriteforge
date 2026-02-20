@@ -23,7 +23,13 @@ type UnityFrame struct {
 	} `json:"pivot"`
 }
 
+type UnityAnimation struct {
+	FPS    int      `json:"fps"`
+	Frames []string `json:"frames"`
+}
+
 type UnityAtlasJSON struct {
-	Frames map[string]UnityFrame `json:"frames"`
-	Meta   UnityMeta             `json:"meta"`
+	Frames     map[string]UnityFrame     `json:"frames"`
+	Animations map[string]UnityAnimation `json:"animations,omitempty"`
+	Meta       UnityMeta                 `json:"meta"`
 }

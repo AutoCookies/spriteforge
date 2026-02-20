@@ -14,8 +14,11 @@ func (c Config) Validate() error {
 	if c.PivotMode != "center" && c.PivotMode != "bottom-center" {
 		return fmt.Errorf("pivot must be center or bottom-center")
 	}
-	if c.Preset != "unity" {
-		return fmt.Errorf("preset must be unity")
+	if c.Preset != "unity" && c.Preset != "godot" && c.Preset != "custom" {
+		return fmt.Errorf("preset must be unity, godot, or custom")
+	}
+	if c.FPS < 0 {
+		return fmt.Errorf("fps must be >= 0")
 	}
 	return nil
 }
@@ -33,6 +36,21 @@ func (a Atlas) Validate() error {
 		}
 		if ps.Sprite.X < 0 || ps.Sprite.Y < 0 {
 			return fmt.Errorf("sprite %d source position must be non-negative", i)
+		}
+	}
+	return nil
+}
+
+func (a Animation) Validate() error {
+	if a.State == "" {
+		return fmt.Errorf("animation state is required")
+	}
+	if a.FPS <= 0 {
+		return fmt.Errorf("animation fps must be > 0")
+	}
+	for i, f := range a.Frames {
+		if f == "" {
+			return fmt.Errorf("animation frame %d is empty", i)
 		}
 	}
 	return nil

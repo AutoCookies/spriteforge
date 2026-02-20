@@ -25,10 +25,17 @@ type Atlas struct {
 	Sprites []PlacedSprite
 }
 
+type Animation struct {
+	State  string
+	Frames []string
+	FPS    int
+}
+
 type Config struct {
 	Connectivity int    // 4 or 8
 	Padding      int    // >=0
 	PivotMode    string // "center" | "bottom-center"
 	PowerOfTwo   bool
 	Preset       string // "unity" (v1), others later
+	FPS          int    // >0 defaults to 12 when zero
 }

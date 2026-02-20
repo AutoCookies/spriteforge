@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"pixelc/internal/imageutil"
+	"pixelc/pkg/model"
 )
 
 func WriteOutputs(outDir string, atlasImg *image.RGBA, presetJSON []byte) error {
@@ -23,4 +24,18 @@ func WriteOutputs(outDir string, atlasImg *image.RGBA, presetJSON []byte) error 
 		return fmt.Errorf("write atlas.json: %w", err)
 	}
 	return nil
+}
+
+func WriteSingleReport(outDir, unitName string, atlas model.Atlas, atlasImg *image.RGBA, presetJSON []byte) ([]byte, error) {
+	rep, err := buildUnitReport(unitName, atlas, atlasImg, presetJSON)
+	if err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return nil, err
+	}
+	if err := os.WriteFile(filepath.Join(outDir, "report.json"), rep, 0o644); err != nil {
+		return nil, err
+	}
+	return rep, nil
 }

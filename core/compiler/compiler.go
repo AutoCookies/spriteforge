@@ -38,17 +38,19 @@ func Compile(inputPath string, cfg model.Config) (*model.Atlas, *image.RGBA, []b
 		return nil, nil, nil, err
 	}
 
-	presetJSON, err := exportPreset(cfg.Preset, atlas)
+	presetJSON, err := exportPreset(cfg.Preset, atlas, cfg)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	return &atlas, atlasImg, presetJSON, nil
 }
 
-func exportPreset(preset string, atlas model.Atlas) ([]byte, error) {
+func exportPreset(preset string, atlas model.Atlas, cfg model.Config) ([]byte, error) {
 	switch preset {
 	case "unity":
-		return exporter.ExportUnity(atlas, "atlas.png", version.Version)
+		return exporter.ExportUnity(atlas, "atlas.png", version.Version, effectiveFPS(cfg))
+	case "godot", "custom":
+		return nil, fmt.Errorf("preset %s not implemented", preset)
 	default:
 		return nil, fmt.Errorf("unsupported preset: %s", preset)
 	}
@@ -117,4 +119,11 @@ func processSprites(sprites []model.Sprite, cfg model.Config) ([]model.Sprite, e
 		processed = append(processed, pivoted)
 	}
 	return processed, nil
+}
+
+func effectiveFPS(cfg model.Config) int {
+	if cfg.FPS > 0 {
+		return cfg.FPS
+	}
+	return 12
 }

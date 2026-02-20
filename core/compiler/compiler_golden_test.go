@@ -1,49 +1,67 @@
 package compiler
 
 import (
+	"encoding/json"
 	"image"
 	"image/color"
 	"path/filepath"
 	"testing"
 
-	"pixelc/core/slicer"
 	"pixelc/internal/imageutil"
+	"pixelc/internal/testutil"
 	"pixelc/pkg/model"
 )
 
-func TestSlicerHashGoldenScaffold(t *testing.T) {
-	tmp := t.TempDir()
-	path := filepath.Join(tmp, "in.png")
-	img := image.NewRGBA(image.Rect(0, 0, 8, 8))
+type placementJSON struct {
+	Name string `json:"name"`
+	X    int    `json:"x"`
+	Y    int    `json:"y"`
+	W    int    `json:"w"`
+	H    int    `json:"h"`
+}
+
+func TestCompileGoldenHashes(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "golden_sheet.png")
+	img := image.NewRGBA(image.Rect(0, 0, 14, 10))
 	img.SetRGBA(1, 1, color.RGBA{R: 255, A: 255})
 	img.SetRGBA(1, 2, color.RGBA{R: 255, A: 255})
-	img.SetRGBA(5, 4, color.RGBA{B: 255, A: 255})
-	img.SetRGBA(6, 4, color.RGBA{B: 255, A: 255})
+	img.SetRGBA(5, 1, color.RGBA{G: 255, A: 255})
+	img.SetRGBA(6, 1, color.RGBA{G: 255, A: 255})
+	img.SetRGBA(10, 7, color.RGBA{B: 255, A: 255})
+	img.SetRGBA(10, 8, color.RGBA{B: 255, A: 255})
 	if err := imageutil.SavePNG(path, img); err != nil {
 		t.Fatalf("save input: %v", err)
 	}
 
-	loaded, err := imageutil.LoadPNG(path)
+	cfg := model.Config{Connectivity: 4, Padding: 1, PivotMode: "bottom-center", Preset: "unity", PowerOfTwo: true}
+	atlas, atlasImg, _, err := Compile(path, cfg)
 	if err != nil {
-		t.Fatalf("load input: %v", err)
-	}
-	cfg := model.Config{Connectivity: 4, Padding: 0, PivotMode: "center", Preset: "unity"}
-	sprites, err := slicer.SliceSpritesheet(loaded, cfg)
-	if err != nil {
-		t.Fatalf("slice failed: %v", err)
+		t.Fatalf("compile failed: %v", err)
 	}
 
-	if len(sprites) != 2 {
-		t.Fatalf("expected 2 sprites, got %d", len(sprites))
+	placements := make([]placementJSON, 0, len(atlas.Sprites))
+	for _, ps := range atlas.Sprites {
+		placements = append(placements, placementJSON{Name: ps.Sprite.Name, X: ps.AtlasX, Y: ps.AtlasY, W: ps.Sprite.Width, H: ps.Sprite.Height})
 	}
-	hashes := []string{imageutil.HashRGBA(sprites[0].Image), imageutil.HashRGBA(sprites[1].Image)}
-	expected := []string{
-		"42af801193fad22a2c6b98d9fe22f22d9c00f8f927539f65d98a41178fa31142",
-		"b978f97a664cc8fae883c8185c0e72e4c16c3be1fb8901b5306b20fdb24a34b4",
+	pj, err := json.Marshal(placements)
+	if err != nil {
+		t.Fatalf("marshal placements: %v", err)
 	}
-	for i := range hashes {
-		if hashes[i] != expected[i] {
-			t.Fatalf("hash mismatch at %d: got %s want %s", i, hashes[i], expected[i])
-		}
+	canon, err := testutil.CanonicalJSON(pj)
+	if err != nil {
+		t.Fatalf("canonical json: %v", err)
+	}
+
+	atlasHash := imageutil.HashRGBA(atlasImg)
+	placementsHash := testutil.HashBytes(canon)
+
+	const expectedAtlasHash = "209eb34ca78c65eba1c8af9551265483c2522b6a6b3a4aecadca4617dd91669a"
+	const expectedPlacementsHash = "89bfbdaee7daf3b8b1117b9c15981857d0d63b4b8c505c1f84f63c0128501abe"
+
+	if atlasHash != expectedAtlasHash {
+		t.Fatalf("atlas hash mismatch got=%s want=%s", atlasHash, expectedAtlasHash)
+	}
+	if placementsHash != expectedPlacementsHash {
+		t.Fatalf("placements hash mismatch got=%s want=%s", placementsHash, expectedPlacementsHash)
 	}
 }

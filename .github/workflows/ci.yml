@@ -31,7 +31,7 @@ jobs:
 
 
       - name: Ensure no binary files committed
-        run: go run ./scripts/check_no_binary.go
+        run: go run ./scripts/no_binary.go
 
       - name: Build CLI
         run: go build ./cmd/pixelc

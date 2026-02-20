@@ -1,5 +1,6 @@
 # Binaries
 pixelc
+pixelc-test-bin
 *.exe
 *.dll
 *.so
@@ -9,6 +10,8 @@ pixelc
 bin/
 dist/
 out/
+tmp/
+*.tmp
 
 # Go
 coverage.out

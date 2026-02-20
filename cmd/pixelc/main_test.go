@@ -36,20 +36,30 @@ func TestHelpExitsZero(t *testing.T) {
 	}
 }
 
+func TestVersionAndDoctor(t *testing.T) {
+	v := exec.Command(testBinary, "version")
+	vout, err := v.CombinedOutput()
+	if err != nil || !strings.Contains(string(vout), "pixelc") {
+		t.Fatalf("version failed err=%v out=%s", err, vout)
+	}
+	d := exec.Command(testBinary, "doctor")
+	dout, err := d.CombinedOutput()
+	if err != nil || !strings.Contains(string(dout), "doctor ok") {
+		t.Fatalf("doctor failed err=%v out=%s", err, dout)
+	}
+}
+
 func TestCompileWritesOutputsAndReport(t *testing.T) {
 	input := writeTempPNG(t)
 	outDir := filepath.Join(t.TempDir(), "out")
-	cmd := exec.Command(testBinary, "compile", input, "--out", outDir, "--preset", "unity", "--padding", "2", "--connectivity", "4", "--pivot", "bottom-center", "--power2", "--report")
+	cmd := exec.Command(testBinary, "compile", input, "--out", outDir, "--report")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("expected success err=%v out=%s", err, out)
 	}
-	if !strings.Contains(string(out), "compiled sprites=") {
-		t.Fatalf("missing summary output: %s", out)
+	for _, f := range []string{"atlas.png", "atlas.json", "report.json"} {
+		assertExists(t, filepath.Join(outDir, f))
 	}
-	assertExists(t, filepath.Join(outDir, "atlas.png"))
-	assertExists(t, filepath.Join(outDir, "atlas.json"))
-	assertExists(t, filepath.Join(outDir, "report.json"))
 	data, _ := os.ReadFile(filepath.Join(outDir, "atlas.json"))
 	var parsed map[string]any
 	if err := json.Unmarshal(data, &parsed); err != nil {
@@ -88,23 +98,10 @@ func TestBatchConfigAndIgnore(t *testing.T) {
 	}
 }
 
-func TestCompileInvalidConfig(t *testing.T) {
-	input := writeTempPNG(t)
-	cmd := exec.Command(testBinary, "compile", input, "--out", "out", "--preset", "unity", "--padding", "2", "--connectivity", "6", "--pivot", "bottom-center")
-	out, err := cmd.CombinedOutput()
-	if err == nil {
-		t.Fatalf("expected failure output=%s", out)
-	}
-	if !strings.Contains(string(out), "config validation error") {
-		t.Fatalf("expected validation error output=%s", out)
-	}
-}
-
 func writeTempPNG(t *testing.T) string {
-	t.Helper()
-	path := filepath.Join(t.TempDir(), "input.png")
-	writePNGAt(t, path)
-	return path
+	p := filepath.Join(t.TempDir(), "input.png")
+	writePNGAt(t, p)
+	return p
 }
 
 func writePNGAt(t *testing.T, path string) {

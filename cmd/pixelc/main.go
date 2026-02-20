@@ -30,21 +30,36 @@ func (s *stringList) Set(v string) error {
 	return nil
 }
 
-func main() {
-	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
-}
+func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
 func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	if len(args) == 0 || args[0] == "--help" || args[0] == "-h" {
 		printHelp(stdout)
 		return 0
 	}
-	if args[0] != "compile" {
+	switch args[0] {
+	case "compile":
+		return runCompile(args[1:], stdout, stderr)
+	case "version":
+		fmt.Fprintln(stdout, compiler.VersionString())
+		return 0
+	case "doctor":
+		return runDoctor(stdout, stderr)
+	default:
 		fmt.Fprintf(stderr, "unknown command: %s\n", args[0])
 		printHelp(stderr)
 		return 1
 	}
-	return runCompile(args[1:], stdout, stderr)
+}
+
+func runDoctor(stdout io.Writer, stderr io.Writer) int {
+	msg, err := compiler.Doctor()
+	if err != nil {
+		fmt.Fprintf(stderr, "doctor failed: %v\n", err)
+		return 1
+	}
+	fmt.Fprintln(stdout, msg)
+	return 0
 }
 
 func runCompile(args []string, stdout, stderr io.Writer) int {
@@ -78,14 +93,13 @@ func runCompile(args []string, stdout, stderr io.Writer) int {
 	batch := fs.Bool("batch", false, "batch compile recursive directories")
 	dryRun := fs.Bool("dry-run", false, "plan outputs without writing files")
 	report := fs.Bool("report", false, "write report.json")
-	configPath := fs.String("config", "", "config file path")
+	_ = fs.String("config", "", "config file path")
 	ignores := stringList{}
 	ignores = append(ignores, fileCfg.Ignore...)
 	fs.Var(&ignores, "ignore", "ignore glob pattern (repeatable)")
 	if err := fs.Parse(args); err != nil {
 		return 1
 	}
-	_ = configPath
 	if fs.NArg() != 0 {
 		fmt.Fprintln(stderr, "unexpected extra compile arguments")
 		return 1
@@ -122,12 +136,10 @@ func runSingleCompile(inputPath, outDir string, cfg model.Config, dryRun, writeR
 		return 1
 	}
 	if writeReport {
-		reportData, err := compiler.WriteSingleReport(outDir, filepath.Base(inputPath), *atlas, atlasImg, presetJSON)
-		if err != nil {
+		if _, err := compiler.WriteSingleReport(outDir, filepath.Base(inputPath), *atlas, atlasImg, presetJSON); err != nil {
 			fmt.Fprintf(stderr, "compile failed: %v\n", err)
 			return 1
 		}
-		_ = reportData
 	}
 	fmt.Fprintf(stdout, "compiled sprites=%d atlas=%dx%d wrote=atlas.png,atlas.json\n", len(atlas.Sprites), atlas.Width, atlas.Height)
 	return 0
@@ -140,9 +152,6 @@ func runBatchCompile(inputPath, outDir string, cfg model.Config, ignores []strin
 		return 1
 	}
 	fmt.Fprintf(stdout, "batch units=%d out=%s dry_run=%v\n", len(res.Units), outDir, dryRun)
-	for _, u := range res.Units {
-		fmt.Fprintf(stdout, "unit=%s sprites=%d atlas=%dx%d\n", u.UnitName, len(u.Atlas.Sprites), u.Atlas.Width, u.Atlas.Height)
-	}
 	return 0
 }
 
@@ -180,5 +189,5 @@ func loadCLIConfig(path string) (cliConfigFile, error) {
 }
 
 func printHelp(w io.Writer) {
-	fmt.Fprintln(w, "pixelc compile <input> --out <dir> --preset unity --padding 2 --connectivity 4 --pivot bottom-center --power2 [--batch] [--dry-run] [--config cfg.json] [--ignore pattern] [--fps 12] [--report]")
+	fmt.Fprintln(w, "pixelc compile <input> --out <dir> [flags]\npixelc version\npixelc doctor")
 }

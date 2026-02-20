@@ -1,9 +1,15 @@
 package version
 
+import "fmt"
+
 const AppName = "pixelc"
 
-const Version = "0.0.0-dev"
+var (
+	Version   = "0.0.0-dev"
+	Commit    = "unknown"
+	BuildDate = "unknown"
+)
 
 func FullVersion() string {
-	return AppName + " " + Version
+	return fmt.Sprintf("%s %s (commit=%s build_date=%s)", AppName, Version, Commit, BuildDate)
 }

@@ -1,6 +1,7 @@
 package packer
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"testing"
@@ -103,6 +104,11 @@ func BenchmarkPacker_500Sprites(b *testing.B) {
 		h := 4 + ((i / 5) % 5)
 		sprites = append(sprites, makeSprite("s"+string(rune(i%26+'a')), w, h, color.RGBA{R: uint8(i), A: 255}))
 	}
+	one, _, err := Pack(sprites, cfg)
+	if err != nil {
+		b.Fatalf("pack failed: %v", err)
+	}
+	fmt.Printf("PACKER_BENCH_ATLAS_PX=%d\n", one.Width*one.Height)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if _, _, err := Pack(sprites, cfg); err != nil {

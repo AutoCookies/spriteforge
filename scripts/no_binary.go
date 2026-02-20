@@ -12,7 +12,7 @@ import (
 var blockedExt = map[string]struct{}{
 	".png": {}, ".jpg": {}, ".jpeg": {}, ".gif": {}, ".webp": {}, ".bmp": {}, ".ico": {},
 	".exe": {}, ".dll": {}, ".dylib": {}, ".so": {}, ".a": {}, ".o": {},
-	".zip": {}, ".gz": {}, ".bz2": {}, ".xz": {}, ".7z": {}, ".pdf": {},
+	".zip": {}, ".gz": {}, ".bz2": {}, ".xz": {}, ".7z": {}, ".pdf": {}, ".msi": {}, ".dmg": {}, ".pkg": {}, ".deb": {}, ".rpm": {}, ".appimage": {},
 }
 
 func main() {

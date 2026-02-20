@@ -2,32 +2,33 @@
 
 Pixel Asset Compiler (PAC) is a deterministic sprite-atlas compilation toolchain written in Go.
 
-## Input support status
-
-- PNG spritesheet input: supported.
-- Folder-of-PNG-frames input: supported.
-- Recursive batch folder compilation: supported with `--batch`.
-
-## CLI usage
+## Commands
 
 ```bash
-pixelc compile <input> --out <dir> --preset unity --padding 2 --connectivity 4 --pivot bottom-center --power2
-pixelc compile <input_dir> --batch --out <dir> --ignore "**/temp/**" --fps 12 --report
-pixelc compile <input> --out <dir> --config config.json --dry-run
+pixelc compile <input> --out <dir> [--batch] [--dry-run] [--config cfg.json] [--ignore "**/temp/**"] [--fps 12] [--report]
+pixelc version
+pixelc doctor
 ```
 
-Phase 4 adds batch compile, animation grouping (filename-based), config loading, dry-run mode, ignore patterns, and optional report output.
-
-## Development commands
+## Development
 
 ```bash
 go test ./...
 go vet ./...
-go build ./cmd/pixelc
 ./scripts/verify.sh
 go run ./scripts/no_binary.go
+go build ./cmd/pixelc
+PIXELC_BIN=./pixelc go test -tags smoketool ./scripts -run TestSmokeHarness -v
+go test ./... -bench=. -benchmem -run=^$ > bench.txt
+go run -tags benchgate ./scripts/bench_gate.go bench.txt
 ```
 
-## Fixtures
+## Packaging
 
-Fixture directories are scaffolded in-repo. Binary fixture assets are intentionally not tracked.
+```bash
+./scripts/package/package_linux.sh 1.0.0 <commit> <build-date>
+./scripts/package/package_macos.sh 1.0.0 <commit> <build-date>
+pwsh ./scripts/package/package_windows.ps1 -Version 1.0.0 -Commit <commit> -BuildDate <build-date>
+```
+
+Artifacts are generated in `dist/` and must never be committed.

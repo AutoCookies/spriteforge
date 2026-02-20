@@ -25,20 +25,23 @@ func TestCompiler_BasicSpritesheet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("compile failed: %v", err)
 	}
-	if preset != nil {
-		t.Fatalf("expected nil preset")
+	if len(preset) == 0 {
+		t.Fatalf("expected preset json")
 	}
 	if len(a1.Sprites) != 2 || img1 == nil {
 		t.Fatalf("unexpected output")
 	}
 	assertWithinBounds(t, a1)
 
-	a2, img2, _, err := Compile(path, cfg)
+	a2, img2, preset2, err := Compile(path, cfg)
 	if err != nil {
 		t.Fatalf("compile failed: %v", err)
 	}
 	if imageutil.HashRGBA(img1) != imageutil.HashRGBA(img2) {
 		t.Fatalf("atlas hash mismatch")
+	}
+	if string(preset) != string(preset2) {
+		t.Fatalf("preset json mismatch")
 	}
 	if !samePlacements(a1, a2) {
 		t.Fatalf("placement mismatch")
@@ -48,21 +51,24 @@ func TestCompiler_BasicSpritesheet(t *testing.T) {
 func TestCompiler_FolderInput(t *testing.T) {
 	dir := makeFolderFrames(t, 3)
 	cfg := model.Config{Connectivity: 4, Padding: 2, PivotMode: "center", Preset: "unity", PowerOfTwo: true}
-	a1, img1, _, err := Compile(dir, cfg)
+	a1, img1, preset1, err := Compile(dir, cfg)
 	if err != nil {
 		t.Fatalf("compile folder failed: %v", err)
 	}
-	if len(a1.Sprites) != 3 || img1 == nil {
+	if len(a1.Sprites) != 3 || img1 == nil || len(preset1) == 0 {
 		t.Fatalf("unexpected output")
 	}
 	assertWithinBounds(t, a1)
 
-	a2, img2, _, err := Compile(dir, cfg)
+	a2, img2, preset2, err := Compile(dir, cfg)
 	if err != nil {
 		t.Fatalf("compile folder failed: %v", err)
 	}
 	if imageutil.HashRGBA(img1) != imageutil.HashRGBA(img2) {
 		t.Fatalf("folder atlas hash mismatch")
+	}
+	if string(preset1) != string(preset2) {
+		t.Fatalf("folder preset mismatch")
 	}
 	if !samePlacements(a1, a2) {
 		t.Fatalf("folder placement mismatch")

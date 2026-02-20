@@ -8,11 +8,13 @@ import (
 	"sort"
 	"strings"
 
+	"pixelc/core/exporter"
 	"pixelc/core/packer"
 	"pixelc/core/pivot"
 	"pixelc/core/slicer"
 	"pixelc/core/trim"
 	"pixelc/internal/imageutil"
+	"pixelc/internal/version"
 	"pixelc/pkg/model"
 )
 
@@ -35,7 +37,21 @@ func Compile(inputPath string, cfg model.Config) (*model.Atlas, *image.RGBA, []b
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	return &atlas, atlasImg, nil, nil
+
+	presetJSON, err := exportPreset(cfg.Preset, atlas)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return &atlas, atlasImg, presetJSON, nil
+}
+
+func exportPreset(preset string, atlas model.Atlas) ([]byte, error) {
+	switch preset {
+	case "unity":
+		return exporter.ExportUnity(atlas, "atlas.png", version.Version)
+	default:
+		return nil, fmt.Errorf("unsupported preset: %s", preset)
+	}
 }
 
 func loadSprites(inputPath string, isDir bool, cfg model.Config) ([]model.Sprite, error) {

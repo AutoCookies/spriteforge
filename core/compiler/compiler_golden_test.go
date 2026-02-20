@@ -34,7 +34,7 @@ func TestCompileGoldenHashes(t *testing.T) {
 	}
 
 	cfg := model.Config{Connectivity: 4, Padding: 1, PivotMode: "bottom-center", Preset: "unity", PowerOfTwo: true}
-	atlas, atlasImg, _, err := Compile(path, cfg)
+	atlas, atlasImg, presetJSON, err := Compile(path, cfg)
 	if err != nil {
 		t.Fatalf("compile failed: %v", err)
 	}
@@ -54,14 +54,18 @@ func TestCompileGoldenHashes(t *testing.T) {
 
 	atlasHash := imageutil.HashRGBA(atlasImg)
 	placementsHash := testutil.HashBytes(canon)
+	presetHash := testutil.HashBytes(presetJSON)
 
 	const expectedAtlasHash = "209eb34ca78c65eba1c8af9551265483c2522b6a6b3a4aecadca4617dd91669a"
 	const expectedPlacementsHash = "89bfbdaee7daf3b8b1117b9c15981857d0d63b4b8c505c1f84f63c0128501abe"
-
+	const expectedPresetHash = "3d62c56992a47c9e0ad827c9c0eb14d0d950b1cf01b58e48fe0fed240badec96"
 	if atlasHash != expectedAtlasHash {
 		t.Fatalf("atlas hash mismatch got=%s want=%s", atlasHash, expectedAtlasHash)
 	}
 	if placementsHash != expectedPlacementsHash {
 		t.Fatalf("placements hash mismatch got=%s want=%s", placementsHash, expectedPlacementsHash)
+	}
+	if presetHash != expectedPresetHash {
+		t.Fatalf("preset hash mismatch got=%s want=%s", presetHash, expectedPresetHash)
 	}
 }

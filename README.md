@@ -13,7 +13,7 @@ Pixel Asset Compiler (PAC) is a deterministic sprite-atlas compilation toolchain
 pixelc compile <input> --out <dir> --preset unity --padding 2 --connectivity 4 --pivot bottom-center --power2
 ```
 
-In Phase 0, `compile` validates inputs/config and returns a clear not-implemented message.
+In Phase 1, `compile` performs slicer/trim/pivot processing for PNG spritesheets and returns in-memory atlas sprite metadata. Packer/exporter and file output remain for later phases.
 
 ## Development commands
 

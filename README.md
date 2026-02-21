@@ -10,7 +10,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-5391FE?logo=powershell&logoColor=white)](https://github.com/PowerShell/PowerShell)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Electron](https://img.shields.io/badge/Electron-35-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](./LICENSE)
+[![License](https://img.shields.io/badge/License-NC--OSL%20v1.0-orange)](./LICENSE)
 
 </div>
 
@@ -321,4 +321,4 @@ Artifacts are written to `dist/` and **must never be committed** to the reposito
 
 ## License
 
-[MIT](./LICENSE) © Pomaieco
+[NC-OSL v1.0 — Non-Commercial, Share-Alike](./LICENSE) © Pomaieco

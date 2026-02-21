@@ -1,0 +1,51 @@
+{
+  "name": "pixelc-gui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/electron/main/index.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:pixelc:dev && concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite",
+    "dev:electron": "npm run build:electron && wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
+    "build": "npm run build:renderer && npm run build:electron",
+    "build:renderer": "vite build",
+    "build:electron": "tsup electron/main/index.ts electron/preload/index.ts --format cjs --out-dir dist/electron --target node20 --splitting false",
+    "build:pixelc:dev": "node scripts/build-pixelc-dev.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:unit": "vitest run renderer/src/__tests__",
+    "test:e2e": "playwright test",
+    "package": "npm run build && electron-builder --config electron-builder.yml",
+    "package:dir": "npm run build && electron-builder --config electron-builder.yml --dir"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/node": "^22.13.14",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^35.0.1",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.22.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "jsdom": "^26.0.0",
+    "pngjs": "^7.0.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2",
+    "vitest": "^3.0.8",
+    "wait-on": "^8.0.3"
+  }
+}

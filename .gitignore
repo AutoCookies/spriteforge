@@ -1,5 +1,6 @@
 # Binaries
 /pixelc
+!/pixelc/
 pixelc-test-bin
 *.exe
 *.dll

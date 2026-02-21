@@ -1,12 +1,9 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { spawn } from 'node:child_process';
 import type { CompileArgs } from '../shared/types';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const RENDERER_DIST = join(__dirname, '../../renderer/index.html');
 
 export function validateCompileArgs(args: CompileArgs): void {

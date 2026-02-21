@@ -10,7 +10,7 @@ import (
 )
 
 var blockedExt = map[string]struct{}{
-	".png": {}, ".jpg": {}, ".jpeg": {}, ".gif": {}, ".webp": {}, ".bmp": {}, ".ico": {},
+	".png": {}, ".jpg": {}, ".jpeg": {}, ".gif": {}, ".webp": {}, ".bmp": {}, ".ico": {}, ".icns": {},
 	".exe": {}, ".dll": {}, ".dylib": {}, ".so": {}, ".a": {}, ".o": {},
 	".zip": {}, ".gz": {}, ".bz2": {}, ".xz": {}, ".7z": {}, ".pdf": {}, ".msi": {}, ".dmg": {}, ".pkg": {}, ".deb": {}, ".rpm": {}, ".appimage": {},
 }

@@ -64,8 +64,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: pixelc/apps/gui/package-lock.json
 
       - name: Install GUI deps
         run: npm ci
